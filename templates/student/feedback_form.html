@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Feedback · {{ subject.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>{{ subject.code }} – {{ subject.name }}</h1>
+        <p class="muted">Faculty: {{ subject.faculty.name if subject.faculty else 'Unassigned' }}</p>
+    </div>
+    <a href="{{ url_for('main.student_dashboard') }}" class="btn">Back</a>
+</div>
+
+<section class="card">
+    <p class="muted">Rate each statement from 1 (Poor) to 5 (Excellent). Your responses are anonymous to the faculty and can be submitted only once.</p>
+    <form method="post" class="feedback-form">
+        {% for key, text in QUESTIONS %}
+            <fieldset class="question">
+                <legend>{{ loop.index }}. {{ text }}</legend>
+                <div class="rating-options">
+                    {% for r in range(1, 6) %}
+                        <label class="rating-option">
+                            <input type="radio" name="{{ key }}" value="{{ r }}" {{ 'checked' if ratings.get(key) == r }} required>
+                            <span><strong>{{ r }}</strong><small>{{ RATING_LABELS[r] }}</small></span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </fieldset>
+        {% endfor %}
+
+        <label for="comments">Additional comments / suggestions (optional)</label>
+        <textarea id="comments" name="comments" rows="4" maxlength="1000" placeholder="What did you like? What can be improved?">{{ comments }}</textarea>
+
+        <button type="submit" class="btn btn-primary" data-confirm-submit="Submit feedback? You cannot change it later.">Submit Feedback</button>
+    </form>
+</section>
+{% endblock %}

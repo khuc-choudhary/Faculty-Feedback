@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ user.role|title }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Edit {{ user.role|title }}</h1></div>
+<section class="card narrow">
+    <form method="post" class="form-grid">
+        <div><label>Full name *</label><input name="name" value="{{ user.name }}" required></div>
+        <div><label>Username *</label><input name="username" value="{{ user.username }}" required></div>
+        <div><label>Email</label><input name="email" type="email" value="{{ user.email or '' }}"></div>
+        <div><label>Department</label><input name="department" value="{{ user.department or '' }}"></div>
+        {% if user.role == 'student' %}
+            <div><label>Semester</label><input name="semester" type="number" min="1" max="12" value="{{ user.semester or '' }}"></div>
+        {% else %}
+            <div><label>Designation</label><input name="designation" value="{{ user.designation or '' }}"></div>
+        {% endif %}
+        <div><label>New password</label><input name="password" type="password" placeholder="Leave blank to keep current"></div>
+        <div class="form-actions">
+            <button class="btn btn-primary">Save Changes</button>
+            <a href="{{ url_for('main.admin_faculty' if user.role == 'faculty' else 'main.admin_students') }}" class="btn">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

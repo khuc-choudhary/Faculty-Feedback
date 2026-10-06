@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}My Subjects{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>My Subjects</h1>
+        <p class="muted">{{ current_user.department or 'No department' }} · Semester {{ current_user.semester or '—' }}</p>
+    </div>
+    {% if subjects %}
+        <div class="progress-pill">{{ done|length }} of {{ subjects|length }} completed</div>
+    {% endif %}
+</div>
+
+{% if subjects %}
+<div class="subject-grid">
+    {% for s in subjects %}
+        <div class="card subject-card {{ 'is-done' if s.id in done }}">
+            <span class="subject-code">{{ s.code }}</span>
+            <h3>{{ s.name }}</h3>
+            <p class="muted">{{ s.faculty.name if s.faculty else 'Faculty not assigned' }}</p>
+            {% if s.id in done %}
+                <span class="badge badge-good">Feedback submitted &#10003;</span>
+            {% elif s.faculty %}
+                <a href="{{ url_for('main.submit_feedback', subject_id=s.id) }}" class="btn btn-primary">Give Feedback</a>
+            {% else %}
+                <span class="badge badge-muted">Not open yet</span>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+<section class="card"><p class="muted">No subjects are assigned to your department and semester yet. Please contact the administrator.</p></section>
+{% endif %}
+{% endblock %}

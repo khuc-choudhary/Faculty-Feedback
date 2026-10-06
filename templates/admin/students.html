@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "_macros.html" import delete_button %}
+{% block title %}Manage Students{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Students</h1></div>
+
+<div class="grid-2">
+    <section class="card">
+        <h2>Add Student</h2>
+        <form method="post" class="form-grid">
+            <div><label>Full name *</label><input name="name" required></div>
+            <div><label>Roll No. / Username *</label><input name="username" required></div>
+            <div><label>Password *</label><input name="password" type="password" required></div>
+            <div><label>Email</label><input name="email" type="email"></div>
+            <div><label>Department</label><input name="department" list="dept-list"></div>
+            <div><label>Semester</label><input name="semester" type="number" min="1" max="12"></div>
+            <div class="form-actions"><button class="btn btn-primary">Add Student</button></div>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Bulk Import (Excel / CSV)</h2>
+        <p class="muted">Columns: <code>name</code>, <code>username</code>, <code>password</code> (required),
+            <code>email</code>, <code>department</code>, <code>semester</code>. Existing usernames are skipped.</p>
+        <form method="post" action="{{ url_for('main.admin_import_students') }}" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".xlsx,.xls,.csv" required>
+            <div class="row-gap">
+                <button class="btn btn-primary">Import</button>
+                <a href="{{ url_for('main.admin_student_template') }}" class="btn">Download Template</a>
+            </div>
+        </form>
+    </section>
+</div>
+
+<datalist id="dept-list">{% for d in departments %}<option value="{{ d }}">{% endfor %}</datalist>
+
+<section class="card">
+    <div class="page-head">
+        <h2>All Students ({{ students|length }})</h2>
+        <form method="get" class="filter">
+            <select name="department">
+                <option value="">All departments</option>
+                {% for d in departments %}<option value="{{ d }}" {{ 'selected' if d == dept }}>{{ d }}</option>{% endfor %}
+            </select>
+            <input name="semester" type="number" min="1" max="12" placeholder="Sem" value="{{ sem or '' }}">
+            <button class="btn btn-sm">Filter</button>
+            {% if dept or sem %}<a href="{{ url_for('main.admin_students') }}" class="btn btn-sm">Clear</a>{% endif %}
+        </form>
+    </div>
+    {% if students %}
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Roll No.</th><th>Name</th><th>Department</th><th>Sem</th><th>Feedback Given</th><th></th></tr></thead>
+        <tbody>
+        {% for s in students %}
+            <tr>
+                <td>{{ s.username }}</td>
+                <td>{{ s.name }}<br><small class="muted">{{ s.email or '' }}</small></td>
+                <td>{{ s.department or '—' }}</td>
+                <td>{{ s.semester or '—' }}</td>
+                <td>{{ s.feedbacks|length }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('main.admin_edit_user', user_id=s.id) }}" class="btn btn-sm">Edit</a>
+                    {{ delete_button(url_for('main.admin_delete_user', user_id=s.id), confirm='Delete student ' ~ s.username ~ ' and their feedback?') }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No students found.</p>{% endif %}
+</section>
+{% endblock %}

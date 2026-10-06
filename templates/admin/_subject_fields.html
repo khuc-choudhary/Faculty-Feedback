@@ -1,0 +1,13 @@
+<div><label>Subject code *</label><input name="code" value="{{ subject.code if subject else '' }}" required></div>
+<div><label>Subject name *</label><input name="name" value="{{ subject.name if subject else '' }}" required></div>
+<div><label>Department *</label><input name="department" value="{{ subject.department if subject else '' }}" required></div>
+<div><label>Semester *</label><input name="semester" type="number" min="1" max="12" value="{{ subject.semester if subject else '' }}" required></div>
+<div>
+    <label>Faculty</label>
+    <select name="faculty_id">
+        <option value="">— Unassigned —</option>
+        {% for f in faculty %}
+            <option value="{{ f.id }}" {{ 'selected' if subject and subject.faculty_id == f.id }}>{{ f.name }}{{ ' (' ~ f.department ~ ')' if f.department }}</option>
+        {% endfor %}
+    </select>
+</div>

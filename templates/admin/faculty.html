@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import delete_button %}
+{% block title %}Manage Faculty{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Faculty</h1></div>
+
+<section class="card">
+    <h2>Add Faculty</h2>
+    <form method="post" class="form-grid">
+        <div><label>Full name *</label><input name="name" required></div>
+        <div><label>Username *</label><input name="username" required></div>
+        <div><label>Password *</label><input name="password" type="password" required></div>
+        <div><label>Email</label><input name="email" type="email"></div>
+        <div><label>Department</label><input name="department"></div>
+        <div><label>Designation</label><input name="designation" placeholder="e.g. Assistant Professor"></div>
+        <div class="form-actions"><button class="btn btn-primary">Add Faculty</button></div>
+    </form>
+</section>
+
+<section class="card">
+    <h2>All Faculty ({{ faculty|length }})</h2>
+    {% if faculty %}
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Name</th><th>Username</th><th>Designation</th><th>Department</th><th>Subjects</th><th></th></tr></thead>
+        <tbody>
+        {% for f in faculty %}
+            <tr>
+                <td>{{ f.name }}<br><small class="muted">{{ f.email or '' }}</small></td>
+                <td>{{ f.username }}</td>
+                <td>{{ f.designation or '—' }}</td>
+                <td>{{ f.department or '—' }}</td>
+                <td>{{ f.subjects|map(attribute='code')|join(', ') or '—' }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('main.admin_edit_user', user_id=f.id) }}" class="btn btn-sm">Edit</a>
+                    {{ delete_button(url_for('main.admin_delete_user', user_id=f.id), confirm='Delete ' ~ f.name ~ '? Their subjects will become unassigned.') }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No faculty added yet.</p>{% endif %}
+</section>
+{% endblock %}

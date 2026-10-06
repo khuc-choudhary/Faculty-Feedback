@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "_macros.html" import delete_button, rating_badge %}
+{% block title %}Manage Subjects{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Subjects</h1></div>
+
+<section class="card">
+    <h2>Add Subject</h2>
+    <p class="muted">Students see a subject when its department and semester match their own.</p>
+    <form method="post" class="form-grid">
+        {% with subject = none %}{% include "admin/_subject_fields.html" %}{% endwith %}
+        <div class="form-actions"><button class="btn btn-primary">Add Subject</button></div>
+    </form>
+</section>
+
+<section class="card">
+    <h2>All Subjects ({{ subjects|length }})</h2>
+    {% if subjects %}
+    <div class="table-wrap">
+    <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Department</th><th>Sem</th><th>Faculty</th><th>Responses</th><th>Rating</th><th></th></tr></thead>
+        <tbody>
+        {% for s in subjects %}
+            <tr>
+                <td>{{ s.code }}</td>
+                <td>{{ s.name }}</td>
+                <td>{{ s.department }}</td>
+                <td>{{ s.semester }}</td>
+                <td>{{ s.faculty.name if s.faculty else 'Unassigned' }}</td>
+                <td>{{ s.feedbacks|length }}</td>
+                <td>{{ rating_badge(s.average_rating()) }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('main.admin_edit_subject', subject_id=s.id) }}" class="btn btn-sm">Edit</a>
+                    {{ delete_button(url_for('main.admin_delete_subject', subject_id=s.id), confirm='Delete ' ~ s.code ~ ' and all its feedback?') }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No subjects added yet.</p>{% endif %}
+</section>
+{% endblock %}

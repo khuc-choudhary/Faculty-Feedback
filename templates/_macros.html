@@ -1,0 +1,18 @@
+{% macro rating_badge(value) -%}
+    {%- if value is none -%}
+        <span class="badge badge-muted">No data</span>
+    {%- else -%}
+        <span class="badge {{ 'badge-good' if value >= 4 else ('badge-ok' if value >= 3 else 'badge-bad') }}">{{ '%.2f'|format(value) }} / 5</span>
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro rating_bar(value) -%}
+    <div class="bar"><div class="bar-fill {{ 'fill-good' if value and value >= 4 else ('fill-ok' if value and value >= 3 else 'fill-bad') }}"
+         style="width: {{ ((value or 0) / 5 * 100)|round(1) }}%"></div></div>
+{%- endmacro %}
+
+{% macro delete_button(action, label='Delete', confirm='Are you sure?') -%}
+    <form method="post" action="{{ action }}" class="inline" data-confirm="{{ confirm }}">
+        <button type="submit" class="btn btn-sm btn-danger">{{ label }}</button>
+    </form>
+{%- endmacro %}

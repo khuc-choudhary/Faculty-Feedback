@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import rating_badge %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>Admin Dashboard</h1>
+    <a href="{{ url_for('main.admin_export') }}" class="btn btn-success">Export Excel Report</a>
+</div>
+
+<div class="stats">
+    <div class="stat"><span class="stat-value">{{ stats.faculty }}</span><span class="stat-label">Faculty</span></div>
+    <div class="stat"><span class="stat-value">{{ stats.students }}</span><span class="stat-label">Students</span></div>
+    <div class="stat"><span class="stat-value">{{ stats.subjects }}</span><span class="stat-label">Subjects</span></div>
+    <div class="stat"><span class="stat-value">{{ stats.feedbacks }}</span><span class="stat-label">Feedback Responses</span></div>
+    <div class="stat"><span class="stat-value">{{ '%.2f'|format(stats.overall) if stats.overall else '—' }}</span><span class="stat-label">Overall Avg. Rating</span></div>
+</div>
+
+<div class="grid-2">
+    <section class="card">
+        <h2>Top Rated Subjects</h2>
+        {% if top %}
+        <table>
+            <thead><tr><th>Subject</th><th>Faculty</th><th>Rating</th></tr></thead>
+            <tbody>
+            {% for s in top %}
+                <tr>
+                    <td><a href="{{ url_for('main.admin_subject_report', subject_id=s.id) }}">{{ s.code }} – {{ s.name }}</a></td>
+                    <td>{{ s.faculty.name if s.faculty else 'Unassigned' }}</td>
+                    <td>{{ rating_badge(s.average_rating()) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p class="muted">No feedback submitted yet.</p>{% endif %}
+    </section>
+
+    <section class="card">
+        <h2>Recent Submissions</h2>
+        {% if recent %}
+        <table>
+            <thead><tr><th>Subject</th><th>When</th><th>Avg.</th></tr></thead>
+            <tbody>
+            {% for f in recent %}
+                <tr>
+                    <td>{{ f.subject.code }} – {{ f.subject.name }}</td>
+                    <td>{{ f.submitted_at.strftime('%d %b %Y, %H:%M') }}</td>
+                    <td>{{ rating_badge(f.average()) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p class="muted">No feedback submitted yet.</p>{% endif %}
+    </section>
+</div>
+{% endblock %}

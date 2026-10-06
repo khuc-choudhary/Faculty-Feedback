@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import rating_badge, rating_bar %}
+{% block title %}My Feedback{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>My Feedback</h1>
+        <p class="muted">{{ current_user.designation or 'Faculty' }}{{ ' · ' ~ current_user.department if current_user.department }}</p>
+    </div>
+</div>
+
+{% for item in data %}
+    {% set s = item.subject %}
+    <section class="card">
+        <div class="page-head">
+            <h2>{{ s.code }} – {{ s.name }} <small class="muted">({{ s.department }}, Sem {{ s.semester }})</small></h2>
+            <div>{{ s.feedbacks|length }} response(s) &nbsp; {{ rating_badge(item.average) }}</div>
+        </div>
+        {% if s.feedbacks %}
+            {% for key, text in QUESTIONS %}
+                <div class="q-row">
+                    <div class="q-text">{{ loop.index }}. {{ text }}</div>
+                    {{ rating_bar(item.averages[key]) }}
+                    <div class="q-val">{{ '%.2f'|format(item.averages[key]) }}</div>
+                </div>
+            {% endfor %}
+            <h3>Student comments</h3>
+            {% if item.comments %}
+                <ul class="comments">{% for c in item.comments %}<li><p>{{ c }}</p></li>{% endfor %}</ul>
+            {% else %}<p class="muted">No comments yet.</p>{% endif %}
+        {% else %}
+            <p class="muted">No feedback received yet for this subject.</p>
+        {% endif %}
+    </section>
+{% else %}
+    <section class="card"><p class="muted">No subjects have been assigned to you yet.</p></section>
+{% endfor %}
+{% endblock %}
