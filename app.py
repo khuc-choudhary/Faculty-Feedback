@@ -10,10 +10,18 @@ def create_app():
     app = Flask(__name__)
     basedir = os.path.abspath(os.path.dirname(__file__))
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-this-secret-key")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-        "DATABASE_URL", "sqlite:///" + os.path.join(basedir, "feedback.db")
+    db_url = os.environ.get("DATABASE_URL") or (
+        "sqlite:///" + os.path.join(basedir, "feedback.db")
     )
+    # Use the psycopg (v3) driver for PostgreSQL (Neon/Render); also fixes "postgres://" URLs.
+    for prefix in ("postgres://", "postgresql://"):
+        if db_url.startswith(prefix):
+            db_url = "postgresql+psycopg://" + db_url[len(prefix):]
+            break
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    # Reconnect cleanly when a cloud database drops idle connections.
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB upload limit
 
     db.init_app(app)
@@ -38,4 +46,4 @@ def seed_admin():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.environ.get("FLASK_DEBUG", "1") == "1")
