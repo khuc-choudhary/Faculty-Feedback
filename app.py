@@ -35,11 +35,21 @@ def create_app():
 
 
 def seed_admin():
-    """Create the default admin account on first run."""
-    if not User.query.filter_by(role="admin").first():
+    """Create the admin account on first run.
+
+    If the ADMIN_PASSWORD environment variable is set, it is used instead of the
+    default "admin123", and it also replaces the default password on an existing
+    admin account. A password changed from the app itself is never overwritten.
+    """
+    password = os.environ.get("ADMIN_PASSWORD")
+    admin = User.query.filter_by(role="admin").first()
+    if admin is None:
         admin = User(name="Administrator", username="admin", role="admin")
-        admin.set_password("admin123")
+        admin.set_password(password or "admin123")
         db.session.add(admin)
+        db.session.commit()
+    elif password and admin.check_password("admin123"):
+        admin.set_password(password)
         db.session.commit()
 
 
