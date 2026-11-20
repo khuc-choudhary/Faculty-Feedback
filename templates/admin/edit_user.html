@@ -13,7 +13,7 @@
         {% else %}
             <div><label>Designation</label><input name="designation" value="{{ user.designation or '' }}"></div>
         {% endif %}
-        <div><label>New password</label><input name="password" type="password" placeholder="Leave blank to keep current"></div>
+        <div><label>New password</label><input name="password" type="password" autocomplete="new-password" placeholder="Leave blank to keep current"></div>
         <div class="form-actions">
             <button class="btn btn-primary">Save Changes</button>
             <a href="{{ url_for('main.admin_faculty' if user.role == 'faculty' else 'main.admin_students') }}" class="btn">Cancel</a>
